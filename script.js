@@ -2,8 +2,19 @@
 // The anon/public key is intended for browser use. Never put a service-role key here.
 const SUPABASE_URL = "https://uxoshrxqseumyfmhvxmh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4b3Nocnhxc2V1bXlmbWh2eG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MTEzMDgsImV4cCI6MjEwNTk4NzMwOH0.8qhdGGlwJ8rqFkLcuxh1eXnPOlhIYERZzOK_YBosDlo";
-const { createClient } = window.supabase;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase = null;
+
+// Supabase is only needed when the student submits the registration.
+// Keeping initialization lazy means the registration buttons still work
+// even if the external Supabase library is temporarily unavailable.
+function getSupabaseClient(){
+  if(supabase) return supabase;
+  if(!window.supabase || typeof window.supabase.createClient !== "function"){
+    throw new Error("The registration service could not load. Please refresh the page and try again.");
+  }
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return supabase;
+}
 
 // Registration closes at 11:59 PM on 19 October 2026, Nigeria time.
 const registrationDeadline = new Date("2026-10-20T00:00:00+01:00");
@@ -136,14 +147,15 @@ submitReceipt.addEventListener("click", async () => {
 
   try{
     // Upload the receipt to the private Supabase Storage bucket.
-    const { error: uploadError } = await supabase.storage
+    const client = getSupabaseClient();
+    const { error: uploadError } = await client.storage
       .from("payment-receipts")
       .upload(receiptPath, file, { contentType: file.type, upsert: false });
 
     if(uploadError) throw new Error(uploadError.message || "Receipt upload failed.");
 
     // Store the student registration and the private receipt path.
-    const { error: insertError } = await supabase
+    const { error: insertError } = await client
       .from("registrations")
       .insert({
         full_name: fullName.value.trim(),
@@ -155,7 +167,7 @@ submitReceipt.addEventListener("click", async () => {
 
     if(insertError){
       // Best-effort cleanup if the database insert fails after the file upload.
-      await supabase.storage.from("payment-receipts").remove([receiptPath]);
+      await client.storage.from("payment-receipts").remove([receiptPath]);
       throw new Error(insertError.message || "Registration could not be saved.");
     }
 
