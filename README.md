@@ -1,51 +1,47 @@
 # SÀNA STYLE — 1-Week Intensive Registration Website
 
-A polished static registration landing page designed for GitHub Pages.
+GitHub Pages-compatible registration website for SÀNA STYLE.
 
-## Included
-- Responsive landing page
-- SÀNA STYLE brand system
-- Tutor photo supplied by the client
-- Training curriculum section
-- Payment/registration modal
-- Account number copy button
-- Receipt file selection step
-- Congratulations + WhatsApp group reveal
-- Direct WhatsApp link to tutor
-- Remote Pexels imagery for sewing/fashion visuals
+## Live registration flow
 
-## Important: receipt upload
-GitHub Pages is static hosting. It cannot securely receive and store uploaded payment receipts by itself.
+1. Student clicks **Secure my spot**.
+2. Student sees the ₦30,000 OPay payment details.
+3. Student enters full name, WhatsApp number and optional email.
+4. Student uploads a PNG/JPG/WEBP/PDF payment receipt (max 10MB).
+5. The receipt is uploaded to the **private** Supabase `payment-receipts` bucket.
+6. The student registration is saved in the Supabase `registrations` table.
+7. After successful submission, the student receives the WhatsApp group button.
 
-The current version intentionally does **not** pretend to verify or store the receipt. When a student selects a receipt, the browser confirms the file selection and reveals the WhatsApp group link.
+## Free services used
 
-For a real production workflow, connect the receipt step to a backend/form service such as a serverless function, Supabase, Firebase, Formspree, or another service that can securely store the receipt and send a notification to Hassanat. Then reveal the WhatsApp link only after the backend confirms successful submission.
+- GitHub Pages — website hosting
+- Supabase Free — registration database + private receipt storage
+- WhatsApp — student group/contact
 
-## Deploy to GitHub Pages
-1. Create a new GitHub repository.
-2. Upload `index.html`, `styles.css`, `script.js`, and the `assets` folder.
-3. Open **Settings → Pages**.
-4. Under **Build and deployment**, select **Deploy from a branch**.
-5. Choose your main branch and `/root`.
-6. Save. GitHub will provide the public website URL.
+## Supabase setup
 
-## Registration window
-Registration opens immediately on 26 September 2026 and closes on 19 October 2026 at 11:59 PM Nigeria time. The page includes a live countdown and automatically disables registration after the deadline.
+The website is configured with the SÀNA STYLE Supabase project URL and browser-safe anon/publishable key in `script.js`.
 
-The actual 1-week training/class dates were not provided, so the page does not invent them.
+Before going live, make sure:
 
-## Brand kit
-Primary Wine: #7A2448
-Deep Wine: #55152F
-Rose: #B94770
-Blush: #F9EEF2
-Cream: #FFF9F5
-Gold Accent: #D5A85A
-Ink: #251B1F
-Muted Text: #74676C
+1. A `public.registrations` table exists with:
+   - `id` UUID primary key/default `gen_random_uuid()`
+   - `full_name` text
+   - `whatsapp` text
+   - `email` text
+   - `receipt_path` text
+   - `payment_status` text
+   - `created_at` timestamptz default `now()`
+2. A **private** Storage bucket named `payment-receipts` exists.
+3. Run `SUPABASE_SETUP.sql` in Supabase SQL Editor. It adds the public upload/insert policies and enforces the 19 October 2026 deadline.
 
-Typography:
-- Display: Playfair Display
-- Body/UI: DM Sans
+## Important security notes
 
-Suggested brand direction: feminine, premium, confident, educational, modern African fashion.
+- Never place a Supabase `service_role`/secret key in this website.
+- The anon/public key is designed for browser use; database and storage permissions are controlled by Row Level Security policies.
+- Payment receipts are stored in a private bucket. The public website does not create public download URLs.
+- The website validates receipt file type and size in the browser. For stronger production hardening, additional server-side validation can be added later.
+
+## Registration dates
+
+Registration opens immediately and closes at **11:59 PM Nigeria time on 19 October 2026**. The frontend countdown and the database insert policy both enforce the deadline.

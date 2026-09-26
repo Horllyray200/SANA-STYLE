@@ -146,8 +146,13 @@
 
       <section class="modal-step" data-step="2">
         <p class="eyebrow">STEP 2 OF 3</p>
-        <h2>Upload your payment receipt</h2>
-        <p>Select the receipt/screenshot of your ₦30,000 payment.</p>
+        <h2>Complete your registration</h2>
+        <p>Enter your details and upload the receipt for your ₦30,000 payment.</p>
+        <div class="registration-fields">
+          <label>Full name<input id="fullName" type="text" autocomplete="name" placeholder="Your full name" required></label>
+          <label>WhatsApp number<input id="whatsappNumber" type="tel" autocomplete="tel" placeholder="e.g. 08012345678" required></label>
+          <label>Email address <span>(optional)</span><input id="emailAddress" type="email" autocomplete="email" placeholder="you@example.com"></label>
+        </div>
         <label class="upload-box" for="receiptInput">
           <span class="upload-icon">↑</span>
           <strong id="uploadTitle">Choose receipt</strong>
@@ -155,15 +160,15 @@
           <input id="receiptInput" type="file" accept="image/png,image/jpeg,image/webp,application/pdf">
         </label>
         <p class="upload-status" id="uploadStatus"></p>
-        <div class="modal-actions"><button class="btn btn-ghost" data-prev="1">Back</button><button class="btn btn-primary" id="submitReceipt" disabled>Submit receipt →</button></div>
-        <p class="micro-note">For this GitHub Pages version, the receipt is selected in your browser and is not stored on a server. See the setup notes for connecting real receipt storage.</p>
+        <div class="modal-actions"><button class="btn btn-ghost" data-prev="1">Back</button><button class="btn btn-primary" id="submitReceipt" disabled>Submit registration →</button></div>
+        <p class="micro-note">Your details and payment receipt are securely submitted to SÀNA STYLE for registration review.</p>
       </section>
 
       <section class="modal-step success-step" data-step="3">
         <div class="success-icon">✓</div>
         <p class="eyebrow">REGISTRATION COMPLETE</p>
         <h2>Congratulations! 🎉</h2>
-        <p>Your payment receipt has been selected successfully. Welcome to SÀNA STYLE.</p>
+        <p>Your registration and payment receipt have been submitted successfully. Welcome to SÀNA STYLE!</p>
         <div class="group-card">
           <span>YOUR CLASS COMMUNITY</span>
           <strong>Join the WhatsApp group</strong>
@@ -175,6 +180,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
